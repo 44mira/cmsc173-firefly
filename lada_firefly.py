@@ -69,7 +69,7 @@ def main():
     hr()
 
     w_fly, b_fly = minmax_firefly(fitnesses)
-    print("Best and Worst Firefly\n")
+    print("Worst and Best Firefly\n")
     print(df.iloc[[w_fly, b_fly]])
 
 
