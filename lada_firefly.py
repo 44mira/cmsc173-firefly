@@ -55,6 +55,7 @@ def firefly_operator(
     :param absorption:        gamma in the FA operator
     :param levy_flight_param: lambda in the FA operator
     :param random_param:      alpha in the FA operator
+    :param t:                 t in the FA operator
 
     :return: improved w_fly
     """
