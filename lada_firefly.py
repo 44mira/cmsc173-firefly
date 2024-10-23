@@ -22,6 +22,18 @@ def bounded_generate(lb, ub):
 bounds = -10, 10
 
 population, pop_size = [], 10
+dimension = 5
+fitnesses = []
 
 for k in range(pop_size):
-    solution = [bounded_generate(*bounds)]
+    solution = [bounded_generate(*bounds) for _ in range(dimension)]
+    population.append(solution)
+
+    fitnesses.append(griewank(solution))
+
+# display values
+for i in range(pop_size):
+    print(f"Solution {i}: {population[i]}")
+
+for i in range(pop_size):
+    print(f"Fitness {i}: {fitnesses[i]:.5f}")
