@@ -23,6 +23,18 @@ def bounded_generate(lb, ub):
     return lb + (ub - lb) * random()
 
 
+def minmax_firefly(fitnesses):
+    # Get worst and best firefly (this makes the algorithm O(n) instead of O(n log n))
+    w_fly, b_fly = 0, 0
+    for i, fitness in enumerate(fitnesses):
+        if fitness <= fitnesses[b_fly]:
+            b_fly = i
+        if fitness >= fitnesses[w_fly]:
+            w_fly = i
+
+    return w_fly, b_fly
+
+
 # }}}
 
 
@@ -48,16 +60,17 @@ def main():
         data.append(tmp)
 
     col_labels = [*(str(i) for i in range(1, dimension + 1)), "fitness"]
-    row_labels = [f"Soln {i}" for i in range(1, pop_size + 1)]
-    df = pd.DataFrame(data=data, columns=col_labels, index=row_labels)
+    df = pd.DataFrame(data=data, columns=col_labels)
 
     hr()
     print("Unsorted Population: ")
     print(df)
 
     hr()
-    print("Sorted Population: ")
-    print(df.sort_values("fitness"))
+
+    w_fly, b_fly = minmax_firefly(fitnesses)
+    print("Best and Worst Firefly\n")
+    print(df.iloc[[w_fly, b_fly]])
 
 
 if __name__ == "__main__":
