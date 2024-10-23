@@ -3,6 +3,7 @@ import pandas as pd
 from random import random
 from numpy import cos, sqrt
 
+
 # [[ Functions ]] {{{
 
 
@@ -65,11 +66,11 @@ def firefly_operator(
     second_term = [second_partial * (b - w) for w, b in zip(w_fly, b_fly)]
 
     third_partial = random_param * np.sign(random() - 0.5)
-    third_term = third_partial * t ** (-levy_flight_param)
-    # third_term = [third_partial * i for i in w_fly]
+    # third_term = third_partial * t ** (-levy_flight_param)
+    third_term = [third_partial * i * t ** (-levy_flight_param) for i in w_fly]
 
-    return [a + b + third_term for a, b in zip(w_fly, second_term)]
-    # return [a + b + c for a, b, c in zip(w_fly, second_term, third_term)]
+    # return [a + b + third_term for a, b in zip(w_fly, second_term)]
+    return [a + b + c for a, b, c in zip(w_fly, second_term, third_term)]
 
 
 # }}}
@@ -105,15 +106,33 @@ def main():
     hr()
 
     w_fly, b_fly = minmax_firefly(fitnesses)
-    print("Worst and Best Firefly\n")
+    print("Worst and Best Firefly")
     print(df.iloc[[w_fly, b_fly]])
 
-    improved_w_fly = firefly_operator(population[w_fly], population[b_fly])
-    improved_w_fly.append(griewank(improved_w_fly))
-
     hr()
-    print(f"Improved Worst Firefly")
-    print(pd.DataFrame([improved_w_fly], columns=col_labels))
+    print("Applied operator on the worse firefly")
+    improved_w_fly1 = firefly_operator(
+        population[w_fly],
+        population[b_fly],
+        attractiveness=1,
+    )
+    improved_w_fly1.append(griewank(improved_w_fly1))
+
+    improved_w_fly2 = firefly_operator(
+        population[w_fly],
+        population[b_fly],
+        attractiveness=10,
+    )
+    improved_w_fly2.append(griewank(improved_w_fly2))
+
+    print(
+        pd.DataFrame(
+            [improved_w_fly1, improved_w_fly2],
+            columns=col_labels,
+            index=["Setting 1", "Setting 2"],
+        )
+    )
+    print("\n")
 
 
 if __name__ == "__main__":
