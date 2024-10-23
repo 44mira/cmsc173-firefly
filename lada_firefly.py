@@ -66,10 +66,8 @@ def firefly_operator(
     second_term = [second_partial * (b - w) for w, b in zip(w_fly, b_fly)]
 
     third_partial = random_param * np.sign(random() - 0.5)
-    # third_term = third_partial * t ** (-levy_flight_param)
     third_term = [third_partial * i * t ** (-levy_flight_param) for i in w_fly]
 
-    # return [a + b + third_term for a, b in zip(w_fly, second_term)]
     return [a + b + c for a, b, c in zip(w_fly, second_term, third_term)]
 
 
@@ -114,14 +112,14 @@ def main():
     improved_w_fly1 = firefly_operator(
         population[w_fly],
         population[b_fly],
-        attractiveness=1,
+        levy_flight_param=2,
     )
     improved_w_fly1.append(griewank(improved_w_fly1))
 
     improved_w_fly2 = firefly_operator(
         population[w_fly],
         population[b_fly],
-        attractiveness=10,
+        levy_flight_param=10,
     )
     improved_w_fly2.append(griewank(improved_w_fly2))
 
