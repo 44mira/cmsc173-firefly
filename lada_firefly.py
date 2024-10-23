@@ -3,7 +3,6 @@ import pandas as pd
 from random import random
 from numpy import cos, sqrt
 
-
 # [[ Functions ]] {{{
 
 
@@ -35,6 +34,44 @@ def minmax_firefly(fitnesses):
     return w_fly, b_fly
 
 
+def firefly_operator(
+    w_fly,
+    b_fly,
+    *,
+    attractiveness=2.0,
+    absorption=1.0,
+    levy_flight_param=2.0,
+    random_param=None,
+    t=1,
+):
+    """
+    Improve the worse solution based on the better solution
+
+    :param w_fly: the worse firefly/solution
+    :param b_fly: the better firefly/solution
+
+    :param attractiveness:    beta_0 in the FA operator
+    :param absorption:        gamma in the FA operator
+    :param levy_flight_param: lambda in the FA operator
+    :param random_param:      alpha in the FA operator
+
+    :return: improved w_fly
+    """
+
+    random_param = random_param or random()  # use random() if not defined
+    r2 = sum((b - w) ** 2 for w, b in zip(w_fly, b_fly))
+
+    second_partial = attractiveness * np.exp(-absorption * r2)
+    second_term = [second_partial * (b - w) for w, b in zip(w_fly, b_fly)]
+
+    third_partial = random_param * np.sign(random() - 0.5)
+    third_term = third_partial * t ** (-levy_flight_param)
+    # third_term = [third_partial * i for i in w_fly]
+
+    return [a + b + third_term for a, b in zip(w_fly, second_term)]
+    # return [a + b + c for a, b, c in zip(w_fly, second_term, third_term)]
+
+
 # }}}
 
 
@@ -53,14 +90,13 @@ def main():
 
         fitnesses.append(griewank(solution))
 
+    # use a DataFrame for displaying
     data = []
     for fitness, soln in zip(fitnesses, population):
-        tmp = soln
-        tmp.append(fitness)
-        data.append(tmp)
+        data.append([*soln, fitness])
 
     col_labels = [*(str(i) for i in range(1, dimension + 1)), "fitness"]
-    df = pd.DataFrame(data=data, columns=col_labels)
+    df = pd.DataFrame(data, columns=col_labels)
 
     hr()
     print("Unsorted Population: ")
@@ -71,6 +107,13 @@ def main():
     w_fly, b_fly = minmax_firefly(fitnesses)
     print("Worst and Best Firefly\n")
     print(df.iloc[[w_fly, b_fly]])
+
+    improved_w_fly = firefly_operator(population[w_fly], population[b_fly])
+    improved_w_fly.append(griewank(improved_w_fly))
+
+    hr()
+    print(f"Improved Worst Firefly")
+    print(pd.DataFrame([improved_w_fly], columns=col_labels))
 
 
 if __name__ == "__main__":
